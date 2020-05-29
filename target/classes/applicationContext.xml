@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.stormling"/>
+    <!-- 让Spring管理 Student bean   -->
+    <bean id="student" class="com.stormling.Student">
+        <property name="name" value="小明"></property>
+        <property name="homework" ref="homework"></property>
+    </bean>
+    <!-- 让Spring管理Homework bean-->
+    <bean id="homework" class="com.stormling.Homework">
+        <property name="content" value="how to calc 3+2 ?"></property>
+    </bean>
+    <!--数据源配置、springboot简化到application.yml中配置-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="user" value="root"></property>
+        <property name="password" value="root"></property>
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:3306/springBean"></property>
+
+        <property name="initialPoolSize" value="5"></property>
+        <property name="maxPoolSize" value="10"></property>
+    </bean>
+    <!--jdbc模板-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!-- 切面定义-->
+    <bean id="checktime" class="com.stormling.util.CheckNow"></bean>
+    <aop:config>
+        <aop:aspect ref="checktime">
+            <aop:pointcut id="dohomework" expression="execution(* *.doHomeWork(..))"/>
+            <aop:before pointcut-ref="dohomework" method="beforDoHomework"></aop:before>
+        </aop:aspect>
+    </aop:config>
+</beans>
